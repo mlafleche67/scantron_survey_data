@@ -1,0 +1,39 @@
+---
+
+output: html_document
+ word_document:
+    reference_docx: templates/ScantronSurvey_ReportTemplate.docx
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      dpi = 300,
+                      #fig.width = 13.75,
+                      fig.align = "center")
+```
+
+
+```{r cars}
+
+
+
+afq_de_pre_intervention <- afq_de_pre %>%
+separate(id, c("intervention", "setting", "supplementals", "group"), "-")
+```
+
+
+```{r pressure, echo=FALSE}
+# bring in intervention code list
+intervention_codes <- read_excel("//fileserver01/Share/MNN Data and Evaluation/FY21/Barcode files/BarcodeGenerator.xlsm", sheet = "Interventions")
+
+intervention_codes <-intervention_codes[-1,]
+
+# bring in setting code list
+setting_codes <- read_excel("//fileserver01/Share/MNN Data and Evaluation/FY21/Barcode files/BarcodeGenerator.xlsm", sheet = "EARS settings")
+  
+setting_codes <-setting_codes[-1,]
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

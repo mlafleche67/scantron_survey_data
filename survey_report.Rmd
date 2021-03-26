@@ -1,0 +1,174 @@
+---
+output:
+  html_document:
+      df_print: paged
+  word_document:
+    reference_docx: templates/ScantronSurvey_ReportTemplate.docx
+params:
+  agency_id: "AIHFS"
+      
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      dpi = 300,
+                      fig.width = 13.75,
+                      fig.align = "center")
+```
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(flextable)
+library(officer)
+library(dplyr)
+```
+
+```{r}
+# source("clean_scantron_survey_data.R", local = knitr::knit_global())
+```
+
+```{r}
+# count surveys function----------------------------------------------------------
+
+  count_surveys <- function(df) {
+  merged_file <- df %>%
+    count(agency_id) %>%
+    rename(total = n) %>%
+    drop_na()
+}
+```
+
+```{r}
+# count surveys and rename total column--------------------------------------------
+
+afq_ie_post_count <- count_surveys(afq_ie_post) %>%
+  rename("AFQ IE post" = total)
+
+afq_de_post_count <- count_surveys(afq_de_post) %>%
+  rename("AFQ DE post" = total)
+
+afq_de_pre_count <- count_surveys(afq_de_post) %>%
+  rename("AFQ DE pre" = total)
+
+fvadult_ie_post_count <- count_surveys(fv_screener_adult_ie_post) %>%
+  rename("Adult FV post" = total)
+
+fvyouth_pre_count <- count_surveys(fv_screener_youth_pre) %>%
+  rename("Youth FV pre" = total)
+
+fvyouth_post_count <- count_surveys(fv_screener_youth_post) %>%
+  rename("Youth FV post" = total)
+
+adultpa_pre_count <- count_surveys(pa_screener_adult_pre) %>%
+  rename("Adult PA pre" = total)
+
+adultpa_post_count <- count_surveys(pa_screener_adult_post) %>%
+  rename("Adult PA post" = total)
+
+youthpa_pre_count <- count_surveys(pa_screener_youth_pre) %>%
+  rename("Youth PA pre" = total)
+
+youthpa_post_count <- count_surveys(pa_screener_youth_post) %>%
+  rename("Youth PA post" = total)
+
+parent_comm_count <- count_surveys(parent_survey_comm) %>%
+  rename("Parent Survey - comm" = total)
+
+parent_school_count <- count_surveys(parent_survey_school) %>%
+  rename("Parent Survey - school" = total)
+
+thats_me_count <- count_surveys(thats_me) %>%
+  rename("That's Me" = total)
+
+process_youth_count <- count_surveys(process_eval_youth) %>%
+  rename("Youth Process" = total)
+
+process_adult_count <- count_surveys(process_eval_adult) %>%
+  rename("Adult Process" = total)
+
+
+
+# join agency code list with all data files and add total column------------------------
+
+ all_survey_count <- left_join(agency_codes, afq_de_pre_count, by = "agency_id") %>%
+   left_join(afq_de_post_count) %>%
+   left_join(afq_ie_post_count) %>%
+   left_join(fvadult_ie_post_count) %>%
+   left_join(fvyouth_pre_count) %>%
+   left_join(fvyouth_post_count) %>%
+   left_join(adultpa_pre_count) %>%
+   left_join(adultpa_post_count) %>%
+   left_join(youthpa_pre_count) %>%
+   left_join(youthpa_post_count) %>%
+   left_join(parent_comm_count) %>%
+   left_join(parent_school_count) %>%
+   left_join(process_youth_count) %>%
+   left_join(process_adult_count) %>%
+   left_join(thats_me_count) %>%
+   rowwise() %>%
+   mutate(Total = sum(c_across(3:17), na.rm=TRUE))
+
+
+# write rds file
+
+ write_rds(all_survey_count,
+           "output/all_survey_count.rds")
+```
+
+
+```{r}
+
+survey_count <- read_rds("output/all_survey_count.rds") %>%
+  rename("Organization" = agency) %>%
+  filter(agency_id == params$agency_id) %>% # comment this line if running rmarkdown rpt over all orgs
+  select(2:18) %>%
+  mutate_at(c(2:16), ~replace(., is.na(.), ""))
+
+```
+
+```{r}
+bottom_border <- fp_border(color = "#13334c", style = "solid", width = 2)
+
+mff_table <- function(data) {
+  
+  number_of_variables <- data %>% 
+    length()
+  
+  data %>% 
+    flextable() %>%
+    theme_zebra() %>% 
+    fontsize(part = "all", size = 14) %>%
+    font(part = "all", fontname = "Arial") %>%
+    flextable::bold(part = "header", bold = TRUE) %>%
+    align(part = "all", align = "center") %>% 
+    align(part = "body", j = 1, align = "left") %>% 
+    align(part = "header", j = 1, align = "left") %>%
+    bg(part = "header", bg = "#13334c") %>%
+    color(part = "header", color = "white") %>%
+    height_all(part = "all", height = 10) %>%
+    hline_bottom(part = "body", border = bottom_border) %>%
+    # fit_to_width(max_width = 13) %>% 
+    # autofit(part = "all") %>%
+    autofit(add_w = 0.1, add_h = .1, part = c("body", "header")) %>%
+
+    padding(padding.top = 7, part = "all") %>%
+
+    width(j = 1,
+            width = 1.75) %>%
+      width(j = 2:17,
+            width = .7) 
+}
+```
+## Survey Report  
+  
+#### Scantron surveys scanned as of `r format(Sys.Date(), "%b %d, %Y")`:
+
+```{r}
+mff_table(survey_count) 
+```
+
