@@ -33,7 +33,7 @@ move_report <- function(report) {
   file.move(str_glue("scantron_reports/{report}"),
             dir_create(str_glue("scantron_reports/{folder_name}/")),
             overwrite = TRUE)
-  file.rename(str_glue("scantron_reports/{folder_name}/{report}"),str_glue("scantron_reports/{folder_name}/default.html"))
+  file.rename(str_glue("scantron_reports/{folder_name}/{report}"),str_glue("scantron_reports/{folder_name}/index.html"))
 }
   
 pwalk(report_list, move_report) 
