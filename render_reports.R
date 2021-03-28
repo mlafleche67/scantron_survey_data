@@ -28,6 +28,7 @@ multireport(
 report_list = list(list.files(path="scantron-reports"))
 
 
+
 move_report <- function(report) {
   folder_name = before_last_dot(report)
   file.move(str_glue("scantron-reports/{report}"),

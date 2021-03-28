@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       dpi = 300,
                       fig.width = 13.75,
-                      fig.align = "center")
+                      fig.align = "left")
 ```
 
 
@@ -147,15 +147,15 @@ mff_table <- function(data) {
     fontsize(part = "all", size = 14) %>%
     font(part = "all", fontname = "Arial") %>%
     flextable::bold(part = "header", bold = TRUE) %>%
-    align(part = "all", align = "center") %>% 
+    align(part = "all", align = "left") %>% 
     align(part = "body", j = 1, align = "left") %>% 
     align(part = "header", j = 1, align = "left") %>%
     bg(part = "header", bg = "#13334c") %>%
     color(part = "header", color = "white") %>%
     height_all(part = "all", height = 10) %>%
     hline_bottom(part = "body", border = bottom_border) %>%
-    # fit_to_width(max_width = 13) %>% 
-    # autofit(part = "all") %>%
+    # fit_to_width(max_width) %>% 
+    autofit(part = "all") %>%
     autofit(add_w = 0.1, add_h = .1, part = c("body", "header")) %>%
 
     padding(padding.top = 7, part = "all") %>%
@@ -167,8 +167,10 @@ mff_table <- function(data) {
 }
 ```
 ## Survey Report  
-  
-#### Scantron surveys scanned as of `r format(Sys.Date(), "%b %d, %Y")`:
+
+\     
+
+#### Scantron surveys scanned as of `r format(Sys.Date(), "%b %d, %Y")`:   
 
 ```{r}
 mff_table(survey_count) 
