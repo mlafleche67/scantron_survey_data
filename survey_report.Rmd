@@ -26,6 +26,8 @@ library(janitor)
 library(flextable)
 library(officer)
 library(dplyr)
+library(blogdown)
+
 ```
 
 ```{r}
