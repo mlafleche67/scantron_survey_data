@@ -1,9 +1,9 @@
 ---
 output:
-  html_document:
-      df_print: paged
   word_document:
     reference_docx: templates/ScantronSurvey_ReportTemplate.docx
+  html_document:
+      df_print: paged
 params:
   agency_id: "AIHFS"
       
@@ -15,7 +15,8 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       dpi = 300,
                       fig.width = 13.75,
-                      fig.align = "left")
+                      fig.align = "left"
+                      )
 ```
 
 
@@ -35,72 +36,87 @@ library(blogdown)
 ```
 
 ```{r}
+# read in agency codes
+
+agency_codes <- read_rds("output/agency_codes.rds") 
+
+```
+
+
+```{r}
 # count surveys function----------------------------------------------------------
 
   count_surveys <- function(df) {
-  merged_file <- df %>%
-    count(agency_id) %>%
-    rename(total = n) %>%
-    drop_na()
+    
+    if(nrow(df) > 0) {
+      merged_file <- df %>%
+        count(agency_id) %>%
+        rename(total = n) %>%
+        drop_na()
+    } else {
+      df %>%
+        add_column(agency_id = "", total = 0)
+    }
 }
 ```
 
 ```{r}
 # count surveys and rename total column--------------------------------------------
 
-afq_ie_post_count <- count_surveys(afq_ie_post) %>%
+afq_ie_post_count <- count_surveys(read_rds("output/afq_ie_post.rds")) %>% 
   rename("AFQ IE post" = total)
 
-afq_de_post_count <- count_surveys(afq_de_post) %>%
+afq_de_post_count <- count_surveys(read_rds("output/afq_de_post.rds")) %>%
   rename("AFQ DE post" = total)
 
-afq_de_pre_count <- count_surveys(afq_de_post) %>%
+afq_de_pre_count <- count_surveys(read_rds("output/afq_de_pre.rds")) %>%
   rename("AFQ DE pre" = total)
-
-fvadult_ie_post_count <- count_surveys(fv_screener_adult_ie_post) %>%
-  rename("Adult FV post" = total)
-
-fvyouth_pre_count <- count_surveys(fv_screener_youth_pre) %>%
+# 
+# fvadult_ie_post_count <- count_surveys(fv_screener_adult_ie_post) %>%
+#   rename("Adult FV post" = total)
+# 
+fvyouth_pre_count <- count_surveys(read_rds("output/fv_screener_youth_pre.rds")) %>%
   rename("Youth FV pre" = total)
 
-fvyouth_post_count <- count_surveys(fv_screener_youth_post) %>%
+fvyouth_post_count <- count_surveys(read_rds("output/fv_screener_youth_post.rds")) %>%
   rename("Youth FV post" = total)
 
-adultpa_pre_count <- count_surveys(pa_screener_adult_pre) %>%
+adultpa_pre_count <- count_surveys(read_rds("output/pa_screener_adult_pre.rds")) %>%
   rename("Adult PA pre" = total)
 
-adultpa_post_count <- count_surveys(pa_screener_adult_post) %>%
+adultpa_post_count <- count_surveys(read_rds("output/pa_screener_adult_post.rds")) %>%
   rename("Adult PA post" = total)
 
-youthpa_pre_count <- count_surveys(pa_screener_youth_pre) %>%
+youthpa_pre_count <- count_surveys(read_rds("output/pa_screener_youth_pre.rds")) %>%
   rename("Youth PA pre" = total)
 
-youthpa_post_count <- count_surveys(pa_screener_youth_post) %>%
+youthpa_post_count <- count_surveys(read_rds("output/pa_screener_youth_post.rds")) %>%
   rename("Youth PA post" = total)
 
-parent_comm_count <- count_surveys(parent_survey_comm) %>%
+parent_comm_count <- count_surveys(read_rds("output/parent_survey_comm.rds")) %>%
   rename("Parent Survey - comm" = total)
 
-parent_school_count <- count_surveys(parent_survey_school) %>%
+parent_school_count <- count_surveys(read_rds("output/parent_survey_school.rds")) %>%
   rename("Parent Survey - school" = total)
 
-thats_me_count <- count_surveys(thats_me) %>%
+thats_me_count <- count_surveys(read_rds("output/thats_me.rds")) %>%
   rename("That's Me" = total)
 
-process_youth_count <- count_surveys(process_eval_youth) %>%
+process_youth_count <- count_surveys(read_rds("output/process_eval_youth.rds")) %>%
   rename("Youth Process" = total)
 
-process_adult_count <- count_surveys(process_eval_adult) %>%
+process_adult_count <- count_surveys(read_rds("output/process_eval_adult.rds")) %>%
   rename("Adult Process" = total)
 
 
 
 # join agency code list with all data files and add total column------------------------
 
- all_survey_count <- left_join(agency_codes, afq_de_pre_count, by = "agency_id") %>%
+
+all_survey_count <- left_join(agency_codes, afq_de_pre_count, by = "agency_id") %>%
    left_join(afq_de_post_count) %>%
    left_join(afq_ie_post_count) %>%
-   left_join(fvadult_ie_post_count) %>%
+   # left_join(fvadult_ie_post_count) %>%
    left_join(fvyouth_pre_count) %>%
    left_join(fvyouth_post_count) %>%
    left_join(adultpa_pre_count) %>%
@@ -113,7 +129,7 @@ process_adult_count <- count_surveys(process_eval_adult) %>%
    left_join(process_adult_count) %>%
    left_join(thats_me_count) %>%
    rowwise() %>%
-   mutate(Total = sum(c_across(3:17), na.rm=TRUE))
+   mutate(Total = sum(c_across(3:16), na.rm=TRUE))
 
 
 # write rds file
@@ -128,7 +144,7 @@ process_adult_count <- count_surveys(process_eval_adult) %>%
 survey_count <- read_rds("output/all_survey_count.rds") %>%
   rename("Organization" = agency) %>%
   filter(agency_id == params$agency_id) %>% # comment this line if running rmarkdown rpt over all orgs
-  select(2:18) %>%
+  select(2:17) %>%
   mutate_at(c(2:16), ~replace(., is.na(.), ""))
 
 ```
@@ -144,31 +160,25 @@ mff_table <- function(data) {
   data %>% 
     flextable() %>%
     theme_zebra() %>% 
-    fontsize(part = "all", size = 14) %>%
+    fontsize(part = "all", size = 11) %>%
     font(part = "all", fontname = "Arial") %>%
     flextable::bold(part = "header", bold = TRUE) %>%
-    align(part = "all", align = "left") %>% 
-    align(part = "body", j = 1, align = "left") %>% 
+    align(part = "all", align = "left") %>%
+    align(part = "body", j = 1, align = "left") %>%
     align(part = "header", j = 1, align = "left") %>%
     bg(part = "header", bg = "#13334c") %>%
     color(part = "header", color = "white") %>%
-    height_all(part = "all", height = 10) %>%
+    height_all(part = "all", height = 5) %>%
     hline_bottom(part = "body", border = bottom_border) %>%
-    # fit_to_width(max_width) %>% 
-    autofit(part = "all") %>%
     autofit(add_w = 0.1, add_h = .1, part = c("body", "header")) %>%
-
     padding(padding.top = 7, part = "all") %>%
-
     width(j = 1,
-            width = 1.75) %>%
-      width(j = 2:17,
-            width = .7) 
+            width = 2) %>%
+      width(j = 2:16,
+            width = .75)
 }
 ```
-## Survey Report  
-
-\     
+ 
 
 #### Scantron surveys scanned as of `r format(Sys.Date(), "%b %d, %Y")`:   
 

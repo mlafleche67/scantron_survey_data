@@ -47,11 +47,12 @@ import_all_data <- function(directory_name) {
 # bring in agency code list-------------------------------------------------------
 
 agency_codes <-
-  read_excel("//fileserver01/Share/MNN Data and Evaluation/FY20/AgencyProgramList.xlsx") %>%
+  read_excel("//fileserver01/Share/MNN Data and Evaluation/FY21/fy21_Agency-Program_code list.xlsx") %>%
   clean_names() %>%
   rename(agency_id = agency_code) %>%
   rename(agency = agency_name) %>%
-  select(agency_id, agency)
+  select(agency_id, agency) %>%
+  write_rds("output/agency_codes.rds")
 
 
 # bring in intervention code list-------------------------------------------------
@@ -80,23 +81,38 @@ setting_codes <-
 setting_codes = setting_codes[-1, ]
 
 
-# run import_all_data function over each directory--------------------------------
+# run import_all_data function over each directory; save as rds file--------------------------------
 
-afq_ie_post <- import_all_data("Adult Food Questionnaire-ie-post")
-afq_de_post <- import_all_data("Adult Food Questionnaire-de-post")
-afq_de_pre <- import_all_data("Adult Food Questionnaire-de-pre")
-fv_screener_adult_ie_post <- import_all_data("FV screener-adult-ie-post")
-fv_screener_youth_post <- import_all_data("Fv screener-youth-post")
-fv_screener_youth_pre <- import_all_data("Fv screener-youth-pre")
-pa_screener_adult_post <- import_all_data("PA screener-adult-post")
-pa_screener_adult_pre <- import_all_data("PA screener-adult-pre")
-pa_screener_youth_pre <- import_all_data("PA screener-youth-pre")
-pa_screener_youth_post <- import_all_data("PA screener-youth-post")
-parent_survey_comm <- import_all_data("Parent Survey-comm")
-parent_survey_school <- import_all_data("Parent Survey-school")
-process_eval_adult <- import_all_data("Process eval-adults")
-process_eval_youth <- import_all_data("Process eval-youth")
-thats_me <- import_all_data("Thats Me")
+
+afq_ie_post <- import_all_data("Adult Food Questionnaire-post-ie") %>%
+  write_rds("output/afq_ie_post.rds")
+afq_de_post <- import_all_data("Adult Food Questionnaire-post-de") %>%
+  write_rds("output/afq_de_post.rds")
+afq_de_pre <- import_all_data("Adult Food Questionnaire-pre-de") %>%
+  write_rds("output/afq_de_pre.rds")
+# fv_screener_adult_ie_post <- import_all_data("FV screener-adult-post-ie")
+fv_screener_youth_post <- import_all_data("Fv screener-youth-post") %>%
+  write_rds("output/fv_screener_youth_post.rds")
+fv_screener_youth_pre <- import_all_data("Fv screener-youth-pre") %>%
+  write_rds("output/fv_screener_youth_pre.rds")
+pa_screener_adult_post <- import_all_data("PA screener-adult-post") %>%
+  write_rds("output/pa_screener_adult_post.rds")
+pa_screener_adult_pre <- import_all_data("PA screener-adult-pre") %>%
+  write_rds("output/pa_screener_adult_pre.rds")
+pa_screener_youth_pre <- import_all_data("PA screener-youth-pre") %>%
+  write_rds("output/pa_screener_youth_pre.rds")
+pa_screener_youth_post <- import_all_data("PA screener-youth-post") %>%
+  write_rds("output/pa_screener_youth_post.rds")
+parent_survey_comm <- import_all_data("Parent Survey-comm") %>%
+  write_rds("output/parent_survey_comm.rds")
+parent_survey_school <- import_all_data("Parent Survey-school") %>%
+  write_rds("output/parent_survey_school.rds")
+process_eval_adult <- import_all_data("Process eval-adults") %>%
+  write_rds("output/process_eval_adult.rds")
+process_eval_youth <- import_all_data("Process eval-youth") %>%
+  write_rds("output/process_eval_youth.rds")
+thats_me <- import_all_data("That's Me") %>%
+  write_rds("output/thats_me.rds")
 
 
 

@@ -16,5 +16,5 @@ copy_data <- function(data_directory) {
            overwrite = TRUE)
 }
 
-copy_data(data_directory = str_glue("FY20/Statewide eval/Data/"))
+copy_data(data_directory = str_glue("FY21/Statewide eval/Data/"))
 
