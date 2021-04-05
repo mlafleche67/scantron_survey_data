@@ -1,9 +1,9 @@
 ---
 output:
-  word_document:
-    reference_docx: templates/ScantronSurvey_ReportTemplate.docx
   html_document:
       df_print: paged
+  word_document:
+    reference_docx: templates/ScantronSurvey_ReportTemplate.docx
 params:
   agency_id: "AIHFS"
       
@@ -143,7 +143,7 @@ all_survey_count <- left_join(agency_codes, afq_de_pre_count, by = "agency_id") 
 
 survey_count <- read_rds("output/all_survey_count.rds") %>%
   rename("Organization" = agency) %>%
-  filter(agency_id == params$agency_id) %>% # comment this line if running rmarkdown rpt over all orgs
+  # filter(agency_id == params$agency_id) %>% # comment this line if running rmarkdown rpt over all orgs
   select(2:17) %>%
   mutate_at(c(2:16), ~replace(., is.na(.), ""))
 
