@@ -157,9 +157,9 @@ mff_table <- function(data) {
   number_of_variables <- data %>% 
     length()
   
-  data %>% 
+    data %>%
     flextable() %>%
-    theme_zebra() %>% 
+    theme_zebra() %>%
     fontsize(part = "all", size = 11) %>%
     font(part = "all", fontname = "Arial") %>%
     flextable::bold(part = "header", bold = TRUE) %>%
@@ -170,12 +170,18 @@ mff_table <- function(data) {
     color(part = "header", color = "white") %>%
     height_all(part = "all", height = 5) %>%
     hline_bottom(part = "body", border = bottom_border) %>%
-    autofit(add_w = 0.1, add_h = .1, part = c("body", "header")) %>%
-    padding(padding.top = 7, part = "all") %>%
+    #     width(j = 1,
+    #       width = 2) %>%
+    # width(j = 2:number_of_variables,
+    #       width = (16 - 2) / (number_of_variables - 1))
+    # %>%
+    #   autofit(add_w = 0.1, add_h = .1, part = c("body", "header"))
+    #%>%
+    # padding(padding.top = 7, part = "all") %>%
     width(j = 1,
-            width = 2) %>%
-      width(j = 2:16,
-            width = .75)
+          width = 2) %>%
+    width(j = 2:16,
+          width = .75)
 }
 ```
  
@@ -183,6 +189,13 @@ mff_table <- function(data) {
 #### Scantron surveys scanned as of `r format(Sys.Date(), "%b %d, %Y")`:   
 
 ```{r}
-mff_table(survey_count) 
+
+number_of_rows <- survey_count %>%
+  nrow()
+
+mff_table(survey_count) %>%
+  vline() %>%
+  bg(part = "body", j = 16, bg = "#cdf2f6") #%>%
+  #bg(part = "body" , i = number_of_rows, bg = "#cdf2f6")
 ```
 
