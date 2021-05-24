@@ -5,7 +5,7 @@ output:
   word_document:
     reference_docx: templates/ScantronSurvey_ReportTemplate.docx
 params:
-  agency_id: "AIHFS"
+  agency_id: "CISD"
       
 ---
 
@@ -15,7 +15,8 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       dpi = 300,
                       fig.width = 13.75,
-                      fig.align = "left"
+                      fig.align = "left",
+                      ft.align = "left"
                       )
 ```
 
@@ -32,7 +33,7 @@ library(blogdown)
 ```
 
 ```{r}
-# source("clean_scantron_survey_data.R", local = knitr::knit_global())
+
 ```
 
 ```{r}
@@ -46,121 +47,263 @@ agency_codes <- read_rds("output/agency_codes.rds")
 ```{r}
 # count surveys function----------------------------------------------------------
 
-  count_surveys <- function(df) {
-    
-    if(nrow(df) > 0) {
-      merged_file <- df %>%
-        count(agency_id) %>%
-        rename(total = n) %>%
-        drop_na()
-    } else {
-      df %>%
-        add_column(agency_id = "", total = 0)
-    }
+count_surveys <- function(df) {
+  if (nrow(df) > 0) {
+    merged_file <- df %>%
+      count(agency_id) %>%
+      #rename(total = n) %>%
+      drop_na()
+  } else {
+    df %>%
+      add_column(agency_id = "", n = 0)
+  }
 }
+
+# function to select specific columns from each survey rds file
+
+select_columns <- function(df) {
+  if ("agency_id" %in% colnames(df)) {
+  survey_intervention <- df %>%
+    select(agency_id, survey_name, intervention)
+  } else {
+df %>%
+    add_column(agency_id = "", survey_name = "", intervention = "") 
+  }
+}
+
 ```
 
 ```{r}
 # count surveys and rename total column--------------------------------------------
+afq_ie_post_count <-
+  count_surveys(read_rds("data-raw/scantron-data/afhq-data-post-ie-s.rds")) %>%
+  rename("AFQ-IE (Post)" = n)
 
-afq_ie_post_count <- count_surveys(read_rds("output/afq_ie_post.rds")) %>% 
-  rename("AFQ IE post" = total)
+afq_de_post_count <-
+  count_surveys(read_rds("data-raw/scantron-data/afhq-data-de-s.rds")) %>%
+  rename("AFQ-DE (Post)" = n)
 
-afq_de_post_count <- count_surveys(read_rds("output/afq_de_post.rds")) %>%
-  rename("AFQ DE post" = total)
+afq_de_pre_count <-
+  count_surveys(read_rds("data-raw/scantron-data/afhq-data-pre-de-s.rds")) %>%
+  rename("AFQ-DE (Pre)" = n)
 
-afq_de_pre_count <- count_surveys(read_rds("output/afq_de_pre.rds")) %>%
-  rename("AFQ DE pre" = total)
-# 
-# fvadult_ie_post_count <- count_surveys(fv_screener_adult_ie_post) %>%
-#   rename("Adult FV post" = total)
-# 
-fvyouth_pre_count <- count_surveys(read_rds("output/fv_screener_youth_pre.rds")) %>%
-  rename("Youth FV pre" = total)
+fvyouth_pre_count <-
+  count_surveys(read_rds("data-raw/scantron-data/yfv-data-pre-s.rds")) %>%
+  rename("Youth FV (Pre)" = n)
 
-fvyouth_post_count <- count_surveys(read_rds("output/fv_screener_youth_post.rds")) %>%
-  rename("Youth FV post" = total)
+fvyouth_post_count <-
+  count_surveys(read_rds("data-raw/scantron-data/yfv-data-post-s.rds")) %>%
+  rename("Youth FV (Post)" = n)
 
-adultpa_pre_count <- count_surveys(read_rds("output/pa_screener_adult_pre.rds")) %>%
-  rename("Adult PA pre" = total)
+adultpa_pre_count <-
+  count_surveys(read_rds("data-raw/scantron-data/apa-data-pre-s.rds")) %>%
+  rename("Adult PA (Pre)" = n)
 
-adultpa_post_count <- count_surveys(read_rds("output/pa_screener_adult_post.rds")) %>%
-  rename("Adult PA post" = total)
+adultpa_post_count <-
+  count_surveys(read_rds("data-raw/scantron-data/apa-data-post-s.rds")) %>%
+  rename("Adult PA (Post)" = n)
 
-youthpa_pre_count <- count_surveys(read_rds("output/pa_screener_youth_pre.rds")) %>%
-  rename("Youth PA pre" = total)
+youthpa_pre_count <-
+  count_surveys(read_rds("data-raw/scantron-data/ypa-data-pre-s.rds")) %>%
+  rename("Youth PA (Pre)" = n)
 
-youthpa_post_count <- count_surveys(read_rds("output/pa_screener_youth_post.rds")) %>%
-  rename("Youth PA post" = total)
+youthpa_post_count <-
+  count_surveys(read_rds("data-raw/scantron-data/ypa-data-post-s.rds")) %>%
+  rename("Youth PA (Post)" = n)
 
-parent_comm_count <- count_surveys(read_rds("output/parent_survey_comm.rds")) %>%
-  rename("Parent Survey - comm" = total)
+parent_comm_count <-
+  count_surveys(read_rds("data-raw/scantron-data/ps-c-s.rds")) %>%
+  rename("Parent Survey (Comm)" = n)
 
-parent_school_count <- count_surveys(read_rds("output/parent_survey_school.rds")) %>%
-  rename("Parent Survey - school" = total)
+parent_school_count <-
+  count_surveys(read_rds("data-raw/scantron-data/ps-s-s.rds")) %>%
+  rename("Parent Survey (School)" = n)
 
-thats_me_count <- count_surveys(read_rds("output/thats_me.rds")) %>%
-  rename("That's Me" = total)
+thats_me_count <-
+  count_surveys(read_rds("data-raw/scantron-data/tm-data-s.rds")) %>%
+  rename("That's Me" = n)
 
-process_youth_count <- count_surveys(read_rds("output/process_eval_youth.rds")) %>%
-  rename("Youth Process" = total)
+process_youth_count <-
+  count_surveys(read_rds("data-raw/scantron-data/pey-data-s.rds")) %>%
+  rename("Program Eval (Youth)" = n)
 
-process_adult_count <- count_surveys(read_rds("output/process_eval_adult.rds")) %>%
-  rename("Adult Process" = total)
+process_adult_count <-
+  count_surveys(read_rds("data-raw/scantron-data/pea-data-s.rds")) %>%
+  rename("Program Eval (Adults)" = n)
 
+# running select columns function over each rds file------------------------------------
+
+afq_ie_post_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/afhq-data-post-ie-s.rds")) 
+
+
+afq_de_post_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/afhq-data-de-s.rds")) 
+
+
+afq_de_pre_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/afhq-data-pre-de-s.rds")) 
+
+
+fvyouth_pre_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/yfv-data-pre-s.rds")) 
+
+
+fvyouth_post_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/yfv-data-post-s.rds")) 
+
+
+adultpa_pre_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/apa-data-pre-s.rds")) 
+
+
+adultpa_post_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/apa-data-post-s.rds")) 
+
+
+youthpa_pre_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/ypa-data-pre-s.rds")) 
+
+
+youthpa_post_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/ypa-data-post-s.rds")) 
+
+
+parent_comm_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/ps-c-s.rds")) 
+
+
+parent_school_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/ps-s-s.rds")) 
+
+
+thats_me_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/tm-data-s.rds")) 
+
+
+process_youth_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/pey-data-s.rds")) 
+
+
+process_adult_intervention_count <-
+  select_columns(read_rds("data-raw/scantron-data/pea-data-s.rds")) 
+
+# binding survey-intervention dataframes into one--------------------------------------
+
+all_surveys_interventions <- 
+  rbind(afq_ie_post_intervention_count,
+      afq_de_pre_intervention_count,
+      afq_de_post_intervention_count,
+      fvyouth_pre_intervention_count,
+      fvyouth_post_intervention_count,
+      adultpa_pre_intervention_count,
+      adultpa_post_intervention_count,
+      youthpa_pre_intervention_count,
+      youthpa_post_intervention_count,
+      parent_comm_intervention_count,
+      parent_school_intervention_count,
+      thats_me_intervention_count,
+      process_youth_intervention_count,
+      process_adult_intervention_count)
+
+counted_surveys_by_intervention <- all_surveys_interventions %>%
+  count(agency_id, survey_name, intervention) %>%
+  left_join(agency_codes) 
 
 
 # join agency code list with all data files and add total column------------------------
 
-
-all_survey_count <- left_join(agency_codes, afq_de_pre_count, by = "agency_id") %>%
-   left_join(afq_de_post_count) %>%
-   left_join(afq_ie_post_count) %>%
-   # left_join(fvadult_ie_post_count) %>%
-   left_join(fvyouth_pre_count) %>%
-   left_join(fvyouth_post_count) %>%
-   left_join(adultpa_pre_count) %>%
-   left_join(adultpa_post_count) %>%
-   left_join(youthpa_pre_count) %>%
-   left_join(youthpa_post_count) %>%
-   left_join(parent_comm_count) %>%
-   left_join(parent_school_count) %>%
-   left_join(process_youth_count) %>%
-   left_join(process_adult_count) %>%
-   left_join(thats_me_count) %>%
-   rowwise() %>%
-   mutate(Total = sum(c_across(3:16), na.rm=TRUE))
+all_survey_count <-
+  left_join(agency_codes, afq_de_pre_count, by = "agency_id") %>%
+  left_join(afq_de_post_count) %>%
+  left_join(afq_ie_post_count) %>%
+  # left_join(fvadult_ie_post_count) %>%
+  left_join(fvyouth_pre_count) %>%
+  left_join(fvyouth_post_count) %>%
+  left_join(adultpa_pre_count) %>%
+  left_join(adultpa_post_count) %>%
+  left_join(youthpa_pre_count) %>%
+  left_join(youthpa_post_count) %>%
+  left_join(parent_comm_count) %>%
+  left_join(parent_school_count) %>%
+  left_join(process_youth_count) %>%
+  left_join(process_adult_count) %>%
+  left_join(thats_me_count) %>%
+  #rowwise() %>%
+  adorn_totals(where = c("row", "col"), fill = "Total")
+# mutate(Total = sum(c_across(3:16), na.rm=TRUE))
 
 
 # write rds file
 
  write_rds(all_survey_count,
-           "output/all_survey_count.rds")
+           "output/all-scantron-survey-count.rds")
+ write_rds(counted_surveys_by_intervention, 
+           "output/counted_surveys_by_intervention.rds") 
 ```
 
 
 ```{r}
 
-survey_count <- read_rds("output/all_survey_count.rds") %>%
+intervention_count_tidy <- read_rds("output/counted_surveys_by_intervention.rds")
+
+
+intervention_count <- intervention_count_tidy %>%
+  #filter(agency_id == params$agency_id) %>% # comment out this line if running rmarkdown rpt over all orgs 
+  select(agency_id, agency, everything()) %>%
+  rename("Survey" = survey_name, "Intervention" = intervention, "Total" = n, "Organization" = agency) %>%
+  #select(-"Organization") %>% # comment out this line if running over all orgs
+  select(-agency_id) 
+
+
+# survey_count_tidy <-
+#   read_rds("output/all-scantron-survey-count.rds") %>%
+#   pivot_longer(cols = -c(agency_id, agency),
+#                names_to = "survey_name") %>%
+#   view()
+
+# joined_survey_intervention <- survey_count_tidy %>%
+# left_join(intervention_count_tidy, by = c("agency_id", "agency", "survey_name")) %>%
+#   rename("survey_total" = value) %>%
+#   rename("intervention_total" = n) %>%
+#   subset(agency != "Total") %>%
+#   pivot_wider(names_from = "survey_name", values_from = "survey_total") %>%
+#   rename("survey_total" = "Total") %>%
+#   relocate("intervention", .after="survey_total") %>%
+#   relocate("intervention_total", .after ="intervention") %>%
+# view()
+
+
+survey_count <- read_rds("output/all-scantron-survey-count.rds") %>%
   rename("Organization" = agency) %>%
-  # filter(agency_id == params$agency_id) %>% # comment this line if running rmarkdown rpt over all orgs
+  #filter(agency_id == params$agency_id) %>% # comment this line if running rmarkdown rpt over all orgs
   select(2:17) %>%
   mutate_at(c(2:16), ~replace(., is.na(.), ""))
 
 ```
 
 ```{r}
-bottom_border <- fp_border(color = "#13334c", style = "solid", width = 2)
+
+
+```
+
+
+
+```{r}
+bottom_border <-
+  fp_border(color = "#13334c",
+            style = "solid",
+            width = 2)
 
 mff_table <- function(data) {
-  
-  number_of_variables <- data %>% 
+  number_of_variables <- data %>%
     length()
   
-    data %>%
+  
+  data %>%
     flextable() %>%
     theme_zebra() %>%
-    fontsize(part = "all", size = 11) %>%
+    fontsize(part = "all", size = 10) %>%
     font(part = "all", fontname = "Arial") %>%
     flextable::bold(part = "header", bold = TRUE) %>%
     align(part = "all", align = "left") %>%
@@ -175,27 +318,52 @@ mff_table <- function(data) {
     # width(j = 2:number_of_variables,
     #       width = (16 - 2) / (number_of_variables - 1))
     # %>%
-    #   autofit(add_w = 0.1, add_h = .1, part = c("body", "header"))
-    #%>%
+    
     # padding(padding.top = 7, part = "all") %>%
     width(j = 1,
           width = 2) %>%
-    width(j = 2:16,
-          width = .75)
+    width(j = 2:number_of_variables,
+          width = .75) %>%
+    width(j = number_of_variables,
+          width = .5)
 }
+
+
 ```
- 
 
-#### Scantron surveys scanned as of `r format(Sys.Date(), "%b %d, %Y")`:   
+#### Scantron surveys scanned as of `r format(Sys.Date(), "%b %d, %Y")`: 
+</br>
 
-```{r}
+```{r} 
+
 
 number_of_rows <- survey_count %>%
   nrow()
 
 mff_table(survey_count) %>%
   vline() %>%
-  bg(part = "body", j = 16, bg = "#cdf2f6") #%>%
-  #bg(part = "body" , i = number_of_rows, bg = "#cdf2f6")
+  bg(part = "body", j = 16, bg = "#cdf2f6") %>%
+  bg(part = "body" , i = number_of_rows, bg = "#cdf2f6")
+
+
+```
+#### </br>
+#### Surveys scanned by intervention:
+</br>
+```{r}
+number_of_columns <- intervention_count %>%
+  length()
+
+mff_table(intervention_count) %>%
+      
+  width(j = 1,
+          width = 2) %>%
+    width(j = 2,
+          width = 3) %>%
+  width(j = 3,
+        width = 3) %>%
+    vline() %>%
+  bg(part = "body", j = number_of_columns, bg = "#cdf2f6") 
+  
 ```
 
