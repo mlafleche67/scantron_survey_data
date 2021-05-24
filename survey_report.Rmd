@@ -249,10 +249,10 @@ intervention_count_tidy <- read_rds("output/counted_surveys_by_intervention.rds"
 
 
 intervention_count <- intervention_count_tidy %>%
-  #filter(agency_id == params$agency_id) %>% # comment out this line if running rmarkdown rpt over all orgs 
+  filter(agency_id == params$agency_id) %>% # comment out this line if running rmarkdown rpt over all orgs 
   select(agency_id, agency, everything()) %>%
   rename("Survey" = survey_name, "Intervention" = intervention, "Total" = n, "Organization" = agency) %>%
-  #select(-"Organization") %>% # comment out this line if running over all orgs
+  select(-"Organization") %>% # comment out this line if running over all orgs
   select(-agency_id) 
 
 
@@ -276,7 +276,7 @@ intervention_count <- intervention_count_tidy %>%
 
 survey_count <- read_rds("output/all-scantron-survey-count.rds") %>%
   rename("Organization" = agency) %>%
-  #filter(agency_id == params$agency_id) %>% # comment this line if running rmarkdown rpt over all orgs
+  filter(agency_id == params$agency_id) %>% # comment this line if running rmarkdown rpt over all orgs
   select(2:17) %>%
   mutate_at(c(2:16), ~replace(., is.na(.), ""))
 

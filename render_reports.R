@@ -18,7 +18,7 @@ parameters <- read_rds("code-lists/agency_codes.rds") %>%
 
 
 multireport(
-  rmarkdown_file = "scantron-count-report.Rmd",
+  rmarkdown_file = "survey_report.Rmd",
   params_data_frame = parameters,
   report_title_param = "agency_id",
   report_format = "html_document",
