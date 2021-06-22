@@ -1,0 +1,160 @@
+---
+title: "Scantron Survey Report"
+output:
+  html_document:
+    df_print: paged
+  word_document:
+    reference_docx: templates/ScantronSurvey_ReportTemplate.docx
+params:
+  agency_id: CISD
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      dpi = 300,
+                      fig.width = 13.75,
+                      #fig.align = "left",
+                      ft.align = "left"
+                      )
+```
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(flextable)
+library(officer)
+#library(tigris)
+library(janitor)
+library(ggthemes)
+library(gghighlight)
+library(here)
+library(gt)
+
+```
+
+
+```{r}
+
+# read in joined_survey_intervention_final rds file and filter by agency_id
+
+scantron_survey_intervention <- read_rds(here("output", "joined_survey_intervention_final.rds")) %>%
+  #filter(agency_id == params$agency_id) %>% # comment out this line if running rmarkdown rpt over all
+  select(-agency_id) %>%
+  #select(-"Organization") %>%
+  mutate_at(c(2:16), ~replace(., is.na(.), "")) 
+
+# read in all_survey_count rds file and filter by agency_id
+scantron_survey_count <- read_rds(here("output", "all_survey_count.rds")) %>%
+#filter(agency_id == params$agency_id) %>% # comment out this line if running rmarkdown rpt over all
+  select(-agency_id) %>%
+  rename("AFHQ-DE (Pre)" = "AFQ-DE (Pre)",
+         "AFHQ-DE (Post)" = "AFQ-DE (Post)",
+         "AFHQ-IE (Post)" = "AFQ-IE (Post)") %>%  
+   #select(-agency) %>% # comment out this line if running over all orgs
+   rename(Organization = agency) # comment out this line if running over just one org
+  
+
+
+
+```
+
+
+```{r}
+bottom_border <-
+  fp_border(color = "#13334c",
+            style = "solid",
+            width = 2)
+
+mff_table <- function(data) {
+  number_of_variables <- data %>%
+    length()
+  
+  
+  data %>%
+    flextable() %>%
+    theme_zebra() %>%
+    fontsize(part = "all", size = 10) %>%
+    font(part = "all", fontname = "Arial") %>%
+    flextable::bold(part = "header", bold = TRUE) %>%
+    align(part = "all", align = "left") %>%
+    align(part = "body", j = 1, align = "left") %>%
+    #align(part = "header", j = 1, align = "left") %>%
+    bg(part = "header", bg = "#13334c") %>%
+    color(part = "header", color = "white") %>%
+    height_all(part = "all", height = 5) %>%
+    hline_bottom(part = "body", border = bottom_border) 
+}
+
+
+
+```
+### Total Scanned by Survey
+```{r}
+number_of_rows <- scantron_survey_count %>%
+ nrow()
+
+mff_table(scantron_survey_count) %>%
+ vline() %>%
+ bg(part = "body", j = 16, bg = "#cdf2f6") %>%
+ align(part = "body", align = "right") %>%
+ width(j = 1,
+       width = 1.5) %>%
+  bg(part = "body" , i = number_of_rows, bg = "#cdf2f6") #comment out line if running org-specific report
+  
+  
+```
+### Total Scanned by Intervention
+```{r} 
+mff_table(scantron_survey_intervention) %>%
+ bg(part = "body", j = 17, bg = "#cdf2f6") %>%
+ align(part = "body", align = "right") %>%
+ align(part = "body", j = 3, align = "left") %>%
+ merge_v(j= "Organization",  target=1) %>%
+ vline() %>%
+ hline() %>%
+ width(j = 1,
+       width = 1.1) %>%
+ width(j = 2,
+       width = 1) %>%
+ width(j = 3:16,
+       width = .73) %>%
+ width(j = 17,
+       width = .7) 
+
+
+
+
+```
+ 
+```{r, layout="l-body-outset"}
+
+# gt(scantron_survey_count) %>%
+#   tab_header(
+#     title = md("**Total Surveys Scanned by Survey Name**")) %>%
+#   tab_options(
+#     container.width = pct(100),
+#     column_labels.background.color = "#22a6b3"
+#   )
+
+
+
+  
+```
+
+  
+```{r, layout="l-body-outset"}
+
+# gt(scantron_survey_intervention) %>%
+#   tab_header(
+#     title = md("**Total Surveys Scanned by Intervention**")) %>%
+#   tab_options(
+#     column_labels.background.color = "#22a6b3") 
+  
+  
+
+```
+
+
