@@ -1,5 +1,5 @@
 ---
-title: "Scantron Survey Report"
+title: ""
 output:
   html_document:
     df_print: paged
@@ -91,6 +91,8 @@ mff_table <- function(data) {
 
 
 ```
+#### Updated: `r format(Sys.time(), '%B %d, %Y')`
+
 ### Total Scanned by Survey
 ```{r}
 number_of_rows <- scantron_survey_count %>%
