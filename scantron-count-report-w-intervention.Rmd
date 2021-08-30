@@ -1,10 +1,10 @@
 ---
 title: ""
 output:
-  word_document:
-    reference_docx: templates/ScantronSurvey_ReportTemplate.docx
   html_document:
     df_print: paged
+  word_document:
+    reference_docx: templates/ScantronSurvey_ReportTemplate.docx
 params:
   agency_id: TCAPS
 ---
@@ -69,10 +69,7 @@ bottom_border <-
             width = 2)
 
 mff_table <- function(data) {
-  number_of_variables <- data %>%
-    length()
-  
-  
+
   data %>%
     flextable() %>%
     theme_zebra() %>%
@@ -100,11 +97,11 @@ number_of_rows <- scantron_survey_count %>%
 
 mff_table(scantron_survey_count) %>%
  vline() %>%
- bg(part = "body", j = 16, bg = "#cdf2f6") %>%
+ bg(part = "body", j = 15, bg = "#cdf2f6") %>%
  align(part = "body", align = "left") %>%
  width(j = 1,
-       width = 1.5) %>%
-  bg(part = "body" , i = number_of_rows, bg = "#cdf2f6") #comment out line if running org-specific report
+       width = 1.5) #%>%
+  #bg(part = "body" , i = number_of_rows, bg = "#cdf2f6") #comment out line if running org-specific report
   
   
 ```

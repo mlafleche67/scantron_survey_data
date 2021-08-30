@@ -112,8 +112,8 @@ afq_de_pre <- import_all_data("AFHQ-DE (Pre)") %>%
   write_rds("data-raw/scantron-data/afhq-data-pre-de-s.rds")
 
 # combining adult food health questionnaire pre and post DE data
-afq_de <- rbind(afq_de_post, afq_de_pre) %>%
-  write_rds("data-raw/scantron-data/afhq-data-de-s.rds")
+# afq_de <- rbind(afq_de_post, afq_de_pre) %>%
+#   write_rds("data-raw/scantron-data/afhq-data-de-s.rds")
 
 # youth fruit and vegetable screener-----------------------------------------------
 
