@@ -39,9 +39,9 @@ select_columns <- function(df) {
 agency_codes <- read_rds("code-lists/agency_codes.rds")  
 
 # count surveys and rename total column--------------------------------------------
-afq_ie_post_count <-
-  count_surveys(read_rds("data-raw/scantron-data/afhq-data-post-ie-s.rds")) %>%
-  rename("AFQ-IE (Post)" = n)
+# afq_ie_post_count <-
+#   count_surveys(read_rds("data-raw/scantron-data/afhq-data-post-ie-s.rds")) %>%
+#   rename("AFQ-IE (Post)" = n)
 
 afq_de_post_count <-
   count_surveys(read_rds("data-raw/scantron-data/afhq-data-de-s.rds")) %>%
@@ -97,8 +97,8 @@ process_adult_count <-
 
 # running select columns function over each rds file------------------------------------
 
-afq_ie_post_intervention_count <-
-  select_columns(read_rds("data-raw/scantron-data/afhq-data-post-ie-s.rds")) 
+# afq_ie_post_intervention_count <-
+#   select_columns(read_rds("data-raw/scantron-data/afhq-data-post-ie-s.rds")) 
 
 
 afq_de_post_intervention_count <-
@@ -155,7 +155,7 @@ process_adult_intervention_count <-
 # binding intervention count data frames into one--------------------------------------
 
 all_survey_interventions <- 
-  rbind(afq_ie_post_intervention_count,
+  rbind(#afq_ie_post_intervention_count,
         afq_de_pre_intervention_count,
         afq_de_post_intervention_count,
         fvyouth_pre_intervention_count,
@@ -180,7 +180,7 @@ all_survey_interventions <-
 all_survey_count <-
   left_join(agency_codes, afq_de_pre_count, by = "agency_id") %>%
   left_join(afq_de_post_count) %>%
-  left_join(afq_ie_post_count) %>%
+  #left_join(afq_ie_post_count) %>%
   left_join(fvyouth_pre_count) %>%
   left_join(fvyouth_post_count) %>%
   left_join(adultpa_pre_count) %>%
@@ -193,7 +193,7 @@ all_survey_count <-
   left_join(process_adult_count) %>%
   left_join(thats_me_count) %>%
   adorn_totals(where = c("row", "col"), fill = "Total") %>%
-mutate_at(c(3:16), ~replace(., is.na(.), "")) %>%
+mutate_at(c(3:15), ~replace(., is.na(.), "")) %>%
   write_rds("output/all_survey_count.rds")
 
 
@@ -213,7 +213,7 @@ joined_survey_intervention <- all_survey_count_long %>%
   rename("all_surveys_total" = "Total") %>%
   relocate("intervention", .after="That's Me") %>%
   select(-agency_id) %>%
-  mutate_at(c(2:16), as.numeric) %>%
+  mutate_at(c(2:15), as.numeric) %>%
   clean_names
 
 # remove duplicate total lines and NAs, rearrange and rename columns 
@@ -221,7 +221,7 @@ joined_survey_intervention <- all_survey_count_long %>%
 joined_survey_intervention_final <- joined_survey_intervention %>%
   filter(all_surveys_total >=0 & (!is.na(afq_de_pre) |
                                     !is.na(afq_de_post) |
-                                    !is.na(afq_ie_post) |
+                                    #!is.na(afq_ie_post) |
                                     !is.na(youth_fv_pre) | 
                                     !is.na(youth_fv_post) | 
                                     !is.na(adult_pa_pre) | 
@@ -240,7 +240,7 @@ joined_survey_intervention_final <- joined_survey_intervention %>%
   rename("Organization" = agency, 
          "AFHQ-DE (Pre)" = afq_de_pre, 
          "AFHQ-DE (Post)" = afq_de_post,
-         "AFHQ-IE (Post)" = afq_ie_post,
+         #"AFHQ-IE (Post)" = afq_ie_post,
          "Youth FV (Pre)" = youth_fv_pre,
          "Youth FV (Post" = youth_fv_post,
          "Adult PA (Pre)" = adult_pa_pre,
@@ -255,7 +255,7 @@ joined_survey_intervention_final <- joined_survey_intervention %>%
          #"Total Surveys" = all_surveys_total,
          "Intervention" = intervention) %>%
   select(-all_surveys_total) %>%
-  mutate_at(c(3:16), as.numeric) %>%
+  mutate_at(c(3:15), as.numeric) %>%
   adorn_totals(where = "col", fill = "Total") %>%
   write_rds("output/joined_survey_intervention_final.rds")
   

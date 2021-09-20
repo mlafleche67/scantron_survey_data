@@ -44,15 +44,15 @@ scantron_survey_intervention <- read_rds(here("output", "joined_survey_intervent
   #filter(agency_id == params$agency_id) %>% # comment out this line if running rmarkdown rpt over all
   select(-agency_id) %>%
   #select(-"Organization") %>%
-  mutate_at(c(2:16), ~replace(., is.na(.), "")) 
+  mutate_at(c(2:15), ~replace(., is.na(.), "")) 
 
 # read in all_survey_count rds file and filter by agency_id
 scantron_survey_count <- read_rds(here("output", "all_survey_count.rds")) %>%
 #filter(agency_id == params$agency_id) %>% # comment out this line if running rmarkdown rpt over all
   select(-agency_id) %>%
   rename("AFHQ-DE (Pre)" = "AFQ-DE (Pre)",
-         "AFHQ-DE (Post)" = "AFQ-DE (Post)",
-         "AFHQ-IE (Post)" = "AFQ-IE (Post)") %>%  
+         "AFHQ-DE (Post)" = "AFQ-DE (Post)") %>%
+         #"AFHQ-IE (Post)" = "AFQ-IE (Post)") %>%  
    #select(-agency) %>% # comment out this line if running over all orgs
    rename(Organization = agency) # comment out this line if running over just one org
   
@@ -100,15 +100,15 @@ mff_table(scantron_survey_count) %>%
  bg(part = "body", j = 15, bg = "#cdf2f6") %>%
  align(part = "body", align = "left") %>%
  width(j = 1,
-       width = 1.5) #%>%
-  #bg(part = "body" , i = number_of_rows, bg = "#cdf2f6") #comment out line if running org-specific report
+       width = 1.5) %>%
+  bg(part = "body" , i = number_of_rows, bg = "#cdf2f6") #comment out line if running org-specific report
   
   
 ```
 ### Total Scanned by Intervention
 ```{r} 
 mff_table(scantron_survey_intervention) %>%
- bg(part = "body", j = 17, bg = "#cdf2f6") %>%
+ bg(part = "body", j = 16, bg = "#cdf2f6") %>%
  align(part = "body", align = "left") %>%
  merge_v(j= "Organization",  target=1) %>%
  vline() %>%
@@ -117,9 +117,9 @@ mff_table(scantron_survey_intervention) %>%
        width = 1.1) %>%
  width(j = 2,
        width = 1) %>%
- width(j = 3:16,
+ width(j = 3:15,
        width = .73) %>%
- width(j = 17,
+ width(j = 16,
        width = .7) 
 
 
